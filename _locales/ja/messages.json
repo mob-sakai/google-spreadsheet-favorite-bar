@@ -1,0 +1,80 @@
+{
+  "extName": {
+    "message": "Googleスプレッドシートお気に入りバー"
+  },
+  "extDescription": {
+    "message": "よく使うフィルタ表示をワンクリックで適用します。"
+  },
+  "duplicateError": {
+    "message": "このフィルタ表示は既にお気に入りに登録されています"
+  },
+  "editParamsLabel": {
+    "message": "パラメータ"
+  },
+  "currentParams": {
+    "message": "現在のパラメータ"
+  },
+  "addCurrent": {
+    "message": "現在のフィルタをお気に入りに追加"
+  },
+  "removeCurrent": {
+    "message": "現在のフィルタをお気に入りから削除"
+  },
+  "removeFavorite": {
+    "message": "お気に入りから削除"
+  },
+  "editNameLabel": {
+    "message": "名前"
+  },
+  "editFilterIdLabel": {
+    "message": "URLパラメータ"
+  },
+  "editSheetIdLabel": {
+    "message": "シートID"
+  },
+  "currentSheet": {
+    "message": "現在のシート"
+  },
+  "toggleList": {
+    "message": "お気に入りの表示/非表示"
+  },
+  "unnamedFavoriteLabel": {
+    "message": "名称未設定"
+  },
+  "unknownError": {
+    "message": "不明なエラー"
+  },
+  "invalidSpreadsheetId": {
+    "message": "spreadsheetId が不正です"
+  },
+  "invalidVisibility": {
+    "message": "visible が不正です"
+  },
+  "invalidSheetId": {
+    "message": "sheetId が不正です"
+  },
+  "invalidFilterViewId": {
+    "message": "filterViewId が不正です"
+  },
+  "invalidLabel": {
+    "message": "label が不正です"
+  },
+  "favoriteNotFound": {
+    "message": "対象のお気に入りが見つかりません"
+  },
+  "duplicateFavoriteConflict": {
+    "message": "同じお気に入りが既に存在します"
+  },
+  "invalidOrder": {
+    "message": "orderedFilterViewIds が不正です"
+  },
+  "invalidUrl": {
+    "message": "URL が不正です"
+  },
+  "unsupportedMessage": {
+    "message": "未対応のメッセージです"
+  },
+  "unknownBackgroundError": {
+    "message": "不明なエラーが発生しました"
+  }
+}

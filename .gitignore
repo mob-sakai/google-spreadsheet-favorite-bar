@@ -1,0 +1,13 @@
+# OS generated files
+.DS_Store
+._*
+.Trashes
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary folders
+tmp/
+temp/

@@ -1,0 +1,315 @@
+#gsfv-inline-favorites {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px #c4c7c5 solid;
+  vertical-align: middle;
+  height: 30px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  flex: 0 1 min(860px, 56vw);
+  overflow: hidden;
+  opacity: 1;
+  transform-origin: top;
+  transition: height 220ms ease;
+}
+
+#gsfv-inline-favorites.collapsed {
+  height: 0;
+}
+
+#gsfv-inline-favorite-toggle {
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #334155;
+  cursor: pointer;
+  line-height: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  transition: background-color 120ms ease, color 120ms ease;
+  padding-top: 6px;
+  margin-top: -1px;
+}
+
+#gsfv-inline-favorite-toggle:hover {
+  background: #ebebeb;
+}
+
+#gsfv-inline-favorite-toggle[aria-expanded="true"] {
+  color: #e11d48;
+}
+
+#gsfv-inline-favorite-toggle:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+#gsfv-inline-favorites .gsfv-chip-list {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-width: max-content;
+  width: max-content;
+  flex: 0 1 auto;
+  max-width: 100%;
+  opacity: 1;
+  transition: max-width 220ms ease, opacity 180ms ease;
+  scrollbar-width: thin;
+}
+
+#gsfv-inline-favorites .gsfv-leading-favorite {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #e11d48;
+  flex: 0 0 auto;
+  margin-right: 2px;
+}
+
+#gsfv-inline-favorites .gsfv-chip-list::-webkit-scrollbar {
+  height: 6px;
+}
+
+#gsfv-inline-favorites .gsfv-chip-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+#gsfv-inline-favorites .gsfv-chip {
+  flex: 0 0 auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 12px;
+  line-height: 1;
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+#gsfv-inline-favorites .gsfv-chip.gsfv-chip-added {
+  animation: gsfv-chip-enter 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes gsfv-chip-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.92);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #gsfv-inline-favorites .gsfv-chip.gsfv-chip-added {
+    animation: none;
+  }
+}
+
+#gsfv-inline-favorites .gsfv-chip.dragging {
+  opacity: 0.55;
+}
+
+#gsfv-inline-favorites .gsfv-chip.drop-before,
+#gsfv-inline-favorites .gsfv-chip.drop-after {
+  position: relative;
+}
+
+#gsfv-inline-favorites .gsfv-chip.drop-before::before,
+#gsfv-inline-favorites .gsfv-chip.drop-after::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  background: #0ea5e9;
+  border-radius: 999px;
+}
+
+#gsfv-inline-favorites .gsfv-chip.drop-before::before {
+  left: -4px;
+}
+
+#gsfv-inline-favorites .gsfv-chip.drop-after::after {
+  right: -4px;
+}
+
+#gsfv-inline-favorites .gsfv-chip.active {
+  border-color: #86efac;
+  background: #f0fdf4;
+  color: #166534;
+  font-weight: 600;
+}
+
+#gsfv-inline-favorites .gsfv-quick-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #93c5fd;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  width: 22px;
+  height: 22px;
+  line-height: 0;
+  padding: 0;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: max-width 220ms ease, opacity 180ms ease, margin 180ms ease;
+}
+
+#gsfv-inline-favorites .gsfv-quick-add:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+#gsfv-inline-favorites .gsfv-quick-add-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+#gsfv-inline-favorites .gsfv-quick-add-icon .gsfv-icon {
+  width: 12px;
+  height: 12px;
+}
+
+#gsfv-inline-favorites.collapsed .gsfv-quick-add {
+  max-width: 0;
+  opacity: 0;
+  margin: 0;
+  padding-left: 0;
+  padding-right: 0;
+  border-width: 0;
+  pointer-events: none;
+}
+
+#gsfv-inline-favorite-toggle .gsfv-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: currentColor;
+  flex: 0 0 auto;
+  margin-top: -6px;
+}
+
+#gsfv-inline-favorites .gsfv-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: currentColor;
+  flex: 0 0 auto;
+}
+
+#gsfv-chip-menu {
+  position: fixed;
+  z-index: 2147483647;
+  min-width: 360px;
+  padding: 4px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+}
+
+#gsfv-chip-menu .gsfv-chip-menu-item {
+  width: 100%;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #1f2937;
+  font-size: 12px;
+  text-align: left;
+  padding: 0 8px;
+  cursor: pointer;
+}
+
+#gsfv-chip-menu .gsfv-chip-menu-item:hover {
+  background: #f8fafc;
+}
+
+#gsfv-chip-menu .gsfv-chip-menu-item.danger {
+  color: #b91c1c;
+}
+
+#gsfv-chip-menu .gsfv-chip-menu-item.danger:hover {
+  background: #fef2f2;
+}
+
+#gsfv-chip-menu .gsfv-chip-menu-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 2px 2px 6px;
+}
+
+#gsfv-chip-menu .gsfv-chip-menu-edit {
+  margin-bottom: 6px;
+  display: grid;
+  gap: 6px;
+}
+
+#gsfv-chip-menu .gsfv-chip-menu-label {
+  display: grid;
+  gap: 4px;
+  font-size: 11px;
+  color: #475569;
+}
+
+#gsfv-chip-menu .gsfv-chip-menu-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 26px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+#gsfv-chip-menu .gsfv-chip-menu-field-row {
+  display: flex;
+  gap: 6px;
+}
+
+#gsfv-chip-menu .gsfv-chip-menu-field-row .gsfv-chip-menu-input {
+  flex: 1;
+}
+
+#gsfv-chip-menu .gsfv-chip-menu-current-sheet,
+#gsfv-chip-menu .gsfv-chip-menu-current-filter {
+  flex: 0 0 auto;
+  height: 26px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 11px;
+  padding: 0 6px;
+  cursor: pointer;
+}
+
+#gsfv-chip-menu .gsfv-chip-menu-current-sheet:hover,
+#gsfv-chip-menu .gsfv-chip-menu-current-filter:hover {
+  background: #f8fafc;
+}
+

@@ -1,0 +1,77 @@
+{
+  "extName": {
+    "message": "Google Spreadsheet Favorite Bar"
+  },
+  "extDescription": {
+    "message": "Apply filter view in one click."
+  },
+  "duplicateError": {
+    "message": "This filter view is already in favorites"
+  },
+  "editParamsLabel": {
+    "message": "Parameters"
+  },
+  "currentParams": {
+    "message": "Current parameters"
+  },
+  "addCurrent": {
+    "message": "Add current filter to favorites"
+  },
+  "removeCurrent": {
+    "message": "Remove current filter from favorites"
+  },
+  "removeFavorite": {
+    "message": "Remove from favorites"
+  },
+  "editNameLabel": {
+    "message": "Name"
+  },
+  "editFilterIdLabel": {
+    "message": "URL params"
+  },
+  "editSheetIdLabel": {
+    "message": "Sheet ID"
+  },
+  "currentSheet": {
+    "message": "Current sheet"
+  },
+  "toggleList": {
+    "message": "Show/hide favorites"
+  },
+  "unnamedFavoriteLabel": {
+    "message": "Unnamed"
+  },
+  "unknownError": {
+    "message": "Unknown error"
+  },
+  "invalidSpreadsheetId": {
+    "message": "Invalid spreadsheetId"
+  },
+  "invalidVisibility": {
+    "message": "Invalid visible flag"
+  },
+  "invalidSheetId": {
+    "message": "Invalid sheetId"
+  },
+  "invalidFilterViewId": {
+    "message": "Invalid filterViewId"
+  },
+  "invalidLabel": {
+    "message": "Invalid label"
+  },
+  "favoriteNotFound": {
+    "message": "Favorite not found"
+  },
+  "invalidOrder": {
+    "message": "Invalid order payload"
+  },
+  "invalidUrl": {
+    "message": "Invalid URL"
+  },
+  "unsupportedMessage": {
+    "message": "Unsupported message"
+  },
+  "unknownBackgroundError": {
+    "message": "An unknown error occurred"
+  }
+}
