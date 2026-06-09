@@ -92,6 +92,7 @@ const FAVORITE_TOGGLE_BUTTON_ID = "gsfv-inline-favorite-toggle";
 const CHIP_MENU_ID = "gsfv-chip-menu";
 const URL_CHANGE_EVENT = "gsfv-url-change";
 const URL_OBSERVER_FLAG = "__gsfvUrlObserverInstalled";
+const URL_POLL_INTERVAL_MS = 100;
 
 let renderTimerId = 0;
 let isRendering = false;
@@ -102,6 +103,8 @@ let chipMenuController = null;
 let dragFilterViewId = "";
 let pendingAddedFavoriteKey = "";
 let visibilityLoadedSpreadsheetId = "";
+let lastObservedUrl = "";
+let urlPollTimerId = 0;
 
 function getUrlParamsText(url) {
   // パラメータ編集欄へ入れる文字列の取得を1か所に集約する。
@@ -247,23 +250,23 @@ function observeUrlChanges() {
   if (window[URL_OBSERVER_FLAG]) {
     return;
   }
-  // pushState / replaceState でURLが変わるケースも検知対象にする。
+  // URLを短い間隔で監視し、hash 変更を含む遷移差分を取りこぼさないようにする。
   window[URL_OBSERVER_FLAG] = true;
+  lastObservedUrl = window.location.href;
 
-  const originalPushState = window.history.pushState.bind(window.history);
-  const originalReplaceState = window.history.replaceState.bind(window.history);
+  if (urlPollTimerId) {
+    window.clearInterval(urlPollTimerId);
+  }
 
-  window.history.pushState = (...args) => {
-    const result = originalPushState(...args);
+  urlPollTimerId = window.setInterval(() => {
+    const currentUrl = window.location.href;
+    if (currentUrl === lastObservedUrl) {
+      return;
+    }
+
+    lastObservedUrl = currentUrl;
     emitUrlChange();
-    return result;
-  };
-
-  window.history.replaceState = (...args) => {
-    const result = originalReplaceState(...args);
-    emitUrlChange();
-    return result;
-  };
+  }, URL_POLL_INTERVAL_MS);
 }
 
 function ensureInlineStyle() {
@@ -1052,11 +1055,7 @@ domObserver.observe(document.documentElement, {
 
 observeUrlChanges();
 window.addEventListener(URL_CHANGE_EVENT, () => {
-  // pushState/replaceState を含むURL変化に即追従する。
-  scheduleInlineRender({ immediate: true });
-});
-window.addEventListener("hashchange", () => {
-  // hash 変化も同様に即時再描画する。
+  // URL変化に即追従する。
   scheduleInlineRender({ immediate: true });
 });
 window.addEventListener("popstate", () => {
@@ -1065,7 +1064,7 @@ window.addEventListener("popstate", () => {
 });
 chrome.storage.onChanged.addListener((_changes, areaName) => {
   // 他コンテキスト更新時もローカル変更を取り込む。
-  if (areaName === "local") {
+  if (areaName === "sync") {
     if (document.getElementById(CHIP_MENU_ID)) {
       return;
     }

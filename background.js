@@ -121,7 +121,7 @@ function buildFavoriteOrderKey(favorite) {
 
 async function getFavoritesMap() {
   // favoritesの生データをそのまま取得する。
-  const result = await chrome.storage.local.get([STORAGE_KEY]);
+  const result = await chrome.storage.sync.get([STORAGE_KEY]);
   const value = result[STORAGE_KEY];
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {};
@@ -152,12 +152,12 @@ async function saveFavoritesMap(map) {
     });
   });
 
-  await chrome.storage.local.set({ [STORAGE_KEY]: compact });
+  await chrome.storage.sync.set({ [STORAGE_KEY]: compact });
 }
 
 async function getInlineVisibilityMap() {
   // インライン表示状態マップを取得する。
-  const result = await chrome.storage.local.get([INLINE_VISIBILITY_KEY]);
+  const result = await chrome.storage.sync.get([INLINE_VISIBILITY_KEY]);
   const value = result[INLINE_VISIBILITY_KEY];
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {};
@@ -167,7 +167,7 @@ async function getInlineVisibilityMap() {
 
 async function saveInlineVisibilityMap(map) {
   // インライン表示状態マップを保存する。
-  await chrome.storage.local.set({ [INLINE_VISIBILITY_KEY]: map });
+  await chrome.storage.sync.set({ [INLINE_VISIBILITY_KEY]: map });
 }
 
 function buildApplyUrl(url, filterViewId, sheetId, urlParams) {
