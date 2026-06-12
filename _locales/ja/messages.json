@@ -38,6 +38,27 @@
   "toggleList": {
     "message": "お気に入りの表示/非表示"
   },
+  "openJsonMenu": {
+    "message": "設定"
+  },
+  "exportJsonButton": {
+    "message": "エクスポート(json)"
+  },
+  "importJsonButton": {
+    "message": "インポート(json)"
+  },
+  "jsonFieldPlaceholder": {
+    "message": "エクスポート: 現在のお気に入りバーをjsonとして出力します。\nインポート: 入力したjsonからお気に入りバーに追加します。"
+  },
+  "jsonExportSummary": {
+    "message": "JSONをエクスポートしました（$1個）"
+  },
+  "jsonImportSummary": {
+    "message": "追加: $1件 / スキップ: $2件"
+  },
+  "invalidJson": {
+    "message": "JSONの形式が不正です"
+  },
   "unnamedFavoriteLabel": {
     "message": "名称未設定"
   },

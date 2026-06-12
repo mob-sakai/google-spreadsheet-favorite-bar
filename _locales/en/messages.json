@@ -38,6 +38,27 @@
   "toggleList": {
     "message": "Show/hide favorites"
   },
+  "openJsonMenu": {
+    "message": "Settings"
+  },
+  "exportJsonButton": {
+    "message": "Export (JSON)"
+  },
+  "importJsonButton": {
+    "message": "Import (JSON)"
+  },
+  "jsonFieldPlaceholder": {
+    "message": "Export: output the current favorites bar as JSON.\nImport: add items to the favorites bar from the JSON you enter."
+  },
+  "jsonExportSummary": {
+    "message": "Exported JSON ($1 entries)"
+  },
+  "jsonImportSummary": {
+    "message": "Added: $1 / Skipped: $2"
+  },
+  "invalidJson": {
+    "message": "Invalid JSON format"
+  },
   "unnamedFavoriteLabel": {
     "message": "Unnamed"
   },

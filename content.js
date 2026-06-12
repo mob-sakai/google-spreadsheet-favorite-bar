@@ -105,6 +105,7 @@ let pendingAddedFavoriteKey = "";
 let visibilityLoadedSpreadsheetId = "";
 let lastObservedUrl = "";
 let urlPollTimerId = 0;
+let inlineStyleReady = false;
 
 function getUrlParamsText(url) {
   // パラメータ編集欄へ入れる文字列の取得を1か所に集約する。
@@ -216,6 +217,11 @@ function createIconSvg(iconName) {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", "0 0 26 26");
   svg.setAttribute("class", `gsfv-icon gsfv-icon-${iconName}`);
+  svg.setAttribute("width", "20");
+  svg.setAttribute("height", "20");
+  if (!inlineStyleReady) {
+    svg.style.visibility = "hidden";
+  }
   svg.setAttribute("aria-hidden", "true");
   svg.setAttribute("focusable", "false");
 
@@ -271,7 +277,11 @@ function observeUrlChanges() {
 
 function ensureInlineStyle() {
   // CSSの重複挿入を避けつつ初回だけ読み込む。
-  if (document.getElementById(INLINE_STYLE_LINK_ID)) {
+  const existingLink = document.getElementById(INLINE_STYLE_LINK_ID);
+  if (existingLink) {
+    if (existingLink instanceof HTMLLinkElement && existingLink.sheet) {
+      inlineStyleReady = true;
+    }
     return;
   }
 
@@ -279,6 +289,14 @@ function ensureInlineStyle() {
   link.id = INLINE_STYLE_LINK_ID;
   link.rel = "stylesheet";
   link.href = chrome.runtime.getURL("content.css");
+  link.addEventListener("load", () => {
+    inlineStyleReady = true;
+    document.querySelectorAll(".gsfv-icon").forEach((iconElement) => {
+      if (iconElement instanceof SVGElement) {
+        iconElement.style.visibility = "";
+      }
+    });
+  });
   document.head.appendChild(link);
 }
 
@@ -359,6 +377,193 @@ function closeChipMenu() {
     chipMenuController.abort();
     chipMenuController = null;
   }
+}
+
+function formatJsonMenuPayload(data) {
+  // JSON表示用に整形する。
+  return JSON.stringify(data, null, 2);
+}
+
+function parseJsonMenuPayload(text) {
+  // JSON入力を配列へ正規化する。
+  const parsed = JSON.parse(String(text || ""));
+  if (Array.isArray(parsed)) {
+    return parsed;
+  }
+  if (parsed && Array.isArray(parsed.favorites)) {
+    return parsed.favorites;
+  }
+  if (parsed && Array.isArray(parsed.items)) {
+    return parsed.items;
+  }
+  return [];
+}
+
+function buildFavoriteUrlSignature(favorite) {
+  // インポート時の重複判定用にURLパラメータを正規化する。
+  return buildUrlParamsSignature(getFavoriteUrlParams(favorite));
+}
+
+async function openFavoriteJsonMenu(anchorElement, context) {
+  // 左端ハート右クリック用のJSONメニューを表示する。
+  closeChipMenu();
+  if (renderTimerId) {
+    window.clearTimeout(renderTimerId);
+    renderTimerId = 0;
+  }
+
+  const menu = document.createElement("div");
+  menu.id = CHIP_MENU_ID;
+  menu.className = "gsfv-chip-menu gsfv-json-menu";
+
+  const actions = document.createElement("div");
+  actions.className = "gsfv-json-menu-actions";
+
+  const exportButton = document.createElement("button");
+  exportButton.type = "button";
+  exportButton.className = "gsfv-chip-menu-item gsfv-json-menu-button";
+  exportButton.textContent = t("exportJsonButton");
+
+  const importButton = document.createElement("button");
+  importButton.type = "button";
+  importButton.className = "gsfv-chip-menu-item gsfv-json-menu-button";
+  importButton.textContent = t("importJsonButton");
+
+  const jsonField = document.createElement("textarea");
+  jsonField.className = "gsfv-json-menu-textarea";
+  jsonField.rows = 10;
+  jsonField.wrap = "off";
+  jsonField.placeholder = t("jsonFieldPlaceholder");
+
+  const status = document.createElement("div");
+  status.className = "gsfv-json-menu-status";
+
+  const setStatus = (message) => {
+    status.textContent = message;
+  };
+
+  exportButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    try {
+      const favorites = await sendToBackground({
+        type: "GET_FAVORITES",
+        spreadsheetId: context.spreadsheetId
+      });
+      const exportedFavorites = favorites.map((item) => ({
+        label: typeof item.label === "string" ? item.label : "",
+        urlParams: getFavoriteUrlParams(item)
+      }));
+      jsonField.value = formatJsonMenuPayload(exportedFavorites);
+      setStatus(t("jsonExportSummary", [String(exportedFavorites.length)]));
+      jsonField.focus();
+      jsonField.select();
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : t("unknownError"));
+    }
+  });
+
+  importButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    try {
+      const importedItems = parseJsonMenuPayload(jsonField.value);
+      const currentFavorites = await sendToBackground({
+        type: "GET_FAVORITES",
+        spreadsheetId: context.spreadsheetId
+      });
+      const signatures = new Set(
+        currentFavorites
+          .map((item) => buildFavoriteUrlSignature(item))
+          .filter((signature) => !!signature)
+      );
+
+      let addedCount = 0;
+      let skippedCount = 0;
+
+      for (const item of importedItems) {
+        const candidate = item && typeof item === "object" ? item : {};
+        const label = typeof candidate.label === "string" ? candidate.label.trim() : "";
+        const urlParams = typeof candidate.urlParams === "string" ? candidate.urlParams.trim() : "";
+        const signature = buildUrlParamsSignature(urlParams);
+        if (!signature || signatures.has(signature)) {
+          skippedCount += 1;
+          continue;
+        }
+
+        try {
+          const addedFavorite = await sendToBackground({
+            type: "ADD_FAVORITE",
+            spreadsheetId: context.spreadsheetId,
+            spreadsheetTitle: context.spreadsheetTitle,
+            filterViewId: "",
+            label,
+            sheetId: "",
+            urlParams
+          });
+
+          const addedSignature = buildFavoriteUrlSignature(addedFavorite);
+          if (addedSignature) {
+            signatures.add(addedSignature);
+          }
+          addedCount += 1;
+        } catch {
+          skippedCount += 1;
+        }
+      }
+
+      setStatus(t("jsonImportSummary", [String(addedCount), String(skippedCount)]));
+      closeChipMenu();
+      scheduleInlineRender({ immediate: true });
+    } catch (error) {
+      setStatus(error instanceof SyntaxError ? t("invalidJson") : (error instanceof Error ? error.message : t("unknownError")));
+    }
+  });
+
+  actions.appendChild(exportButton);
+  actions.appendChild(importButton);
+  menu.appendChild(actions);
+  menu.appendChild(jsonField);
+  menu.appendChild(status);
+  document.body.appendChild(menu);
+
+  const anchorRect = anchorElement.getBoundingClientRect();
+  const menuRect = menu.getBoundingClientRect();
+  const top = Math.min(
+    window.innerHeight - menuRect.height - 8,
+    anchorRect.bottom + 4
+  );
+  const left = Math.min(
+    window.innerWidth - menuRect.width - 8,
+    Math.max(8, anchorRect.left)
+  );
+
+  menu.style.top = `${Math.max(8, top)}px`;
+  menu.style.left = `${left}px`;
+
+  chipMenuController = new AbortController();
+  const openedAt = performance.now();
+  const options = { capture: true, signal: chipMenuController.signal };
+  document.addEventListener("pointerdown", (event) => {
+    // メニュー外クリックで閉じる。ただし開いた直後の誤反応は無視する。
+    if (performance.now() - openedAt < 120) {
+      return;
+    }
+    const target = event.target;
+    if (target instanceof Node && menu.contains(target)) {
+      return;
+    }
+    closeChipMenu();
+  }, options);
+  document.addEventListener("keydown", (event) => {
+    // Escape キーで明示的にメニューを閉じる。
+    if (event.key === "Escape") {
+      closeChipMenu();
+    }
+  }, options);
+  const viewportOptions = { signal: chipMenuController.signal };
+  window.addEventListener("scroll", closeChipMenu, viewportOptions);
+  window.addEventListener("resize", closeChipMenu, viewportOptions);
 }
 
 function openChipMenu(anchorElement, favorite, context) {
@@ -780,6 +985,7 @@ async function renderInlineFavorites() {
       // 展開/折りたたみ状態を即反映し、状態をストレージへ保存する。
       event.preventDefault();
       event.stopPropagation();
+      closeChipMenu();
       isInlineListCollapsed = !isInlineListCollapsed;
       root.classList.toggle("collapsed", isInlineListCollapsed);
       setButtonIcon(favoriteToggleButton, isInlineListCollapsed ? "favorite-outline" : "favorite");
@@ -957,12 +1163,7 @@ async function renderInlineFavorites() {
       quickAddButton.disabled = !canAddCurrent;
       quickAddButton.setAttribute("aria-label", t("addCurrent"));
 
-      const quickAddIcon = document.createElement("span");
-      quickAddIcon.className = "gsfv-quick-add-icon";
-      quickAddIcon.appendChild(createIconSvg("add"));
-      quickAddIcon.setAttribute("aria-hidden", "true");
-
-      quickAddButton.appendChild(quickAddIcon);
+      quickAddButton.appendChild(createIconSvg("add"));
       quickAddButton.addEventListener("click", async (event) => {
         // 現在状態を新規お気に入りとして追加し、直後に再描画する。
         event.preventDefault();
@@ -977,6 +1178,26 @@ async function renderInlineFavorites() {
         }
       });
       root.appendChild(quickAddButton);
+
+      const settingsButton = document.createElement("button");
+      settingsButton.type = "button";
+      settingsButton.className = "gsfv-settings-button";
+      settingsButton.setAttribute("aria-label", t("openJsonMenu"));
+      settingsButton.title = t("openJsonMenu");
+
+      const settingsIcon = document.createElement("span");
+      settingsIcon.className = "gsfv-settings-icon";
+      settingsIcon.appendChild(createIconSvg("settings"));
+      settingsIcon.setAttribute("aria-hidden", "true");
+
+      settingsButton.appendChild(settingsIcon);
+      settingsButton.addEventListener("click", (event) => {
+        // 設定ボタンからJSONメニューを開く。
+        event.preventDefault();
+        event.stopPropagation();
+        void openFavoriteJsonMenu(settingsButton, context);
+      });
+      root.appendChild(settingsButton);
     }
 
     lastRenderSignature = currentSignature;
